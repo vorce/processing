@@ -3,6 +3,9 @@
 https://twitter.com/CentrlPotential/status/1250172108811927552
 "The red point moves halfway to one of the corners randomly, and thats it!"
 
+Some screenshots can be found on my twitter:
+https://twitter.com/Octavorce/status/1254468514578157568?s=20
+
 TODO:
 
 - Change existing colors
