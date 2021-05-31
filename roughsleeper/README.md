@@ -3,6 +3,15 @@
 Implementation of sketch-like drawing algorithm described in this article:
 https://shihn.ca/posts/2020/roughjs-algorithms/
 
+## Starting in Calva
+
+Ensure you start with JAVA_HOME pointing to JDK 8.
+(`JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.8.0_181.jdk/Contents/Home && vscodium .`)
+
+(cmd+shift+p) "Calva: Start a repl and jack in"
+Choose Leiningen
+
+
 
 ## Usage
 

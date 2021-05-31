@@ -62,8 +62,8 @@
   {:color (mod (+ (:color state) 0.7) 255)
    :angle (+ (:angle state) 0.1)})
 
-(defn hand-drawn-box [x y roughness]
-  (let [len 220
+(defn hand-drawn-box [x y len roughness]
+  (let [;len 220
         tilt 30
         depth (/ len 4)]
     (rough-line [x y] [(+ x len) (+ y 15)] roughness) ; top left -> top mid
@@ -78,20 +78,21 @@
     (rough-line [(+ (+ x len) 5) (+ y tilt 15)] [(+ x len) (+ y 15)] roughness)))
 
 
-(defn draw-state [state]
-  ; Clear the sketch by filling it with light-grey color.
-  (q/background 240)
-  (q/no-fill)
-
+(defn draw-boxes []
   (q/stroke 50 50 50 250)
   (q/stroke-weight 3)
-  (hand-drawn-box 130 40 50)
+  (hand-drawn-box 180 200 270 50)
 
   (q/stroke-weight 2)
-  (hand-drawn-box 130 200 20)
+  (hand-drawn-box 180 400 270 20)
 
   (q/stroke-weight 1)
-  (hand-drawn-box 130 360 10))
+  (hand-drawn-box 180 600 270 10))
+
+(defn draw-state [state]
+  (q/background 255)
+  (q/no-fill)
+  (draw-boxes))
 
 (defn filename []
   (let [timestamp (str (q/year) (q/month) (q/day) (q/hour) (q/minute) (q/seconds))
@@ -101,9 +102,12 @@
 
 (defn save-screenshot []
   (let [name (filename)
-        full (str name ".png")]
+        full (str name ".pdf")]
     (println "Saving screenshot: " full)
-    (q/save full)))
+    (let [gr (q/create-graphics 600 1000 :pdf full)]
+      (q/with-graphics gr
+        (draw-boxes)
+        (.dispose gr)))))
 
 (defn mouse-clicked [state event]
   (cond
@@ -112,7 +116,7 @@
 
 (q/defsketch roughsleeper
   :title "Skiss"
-  :size [500 500]
+  :size [600 1000]
   ; setup function called only once, during sketch initialization.
   :setup setup
   ; update-state is called on each iteration before draw-state.
