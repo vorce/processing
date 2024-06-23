@@ -23,6 +23,56 @@
            ;:y (q/map-range (q/noise x y) 0 1 (- y 20) (+ y 20))
            )))
 
+(defn slope [p1 p2]
+  ;(println p1 ", " p2)
+  (let [x1 (:x p1)
+        y1 (:y p1)
+        x2 (:x p2)
+        y2 (:y p2)
+        xdivisor (- x2 x1)]
+    (if (= xdivisor 0)
+      0
+      (/ (- y2 y1) xdivisor))))
+
+(defn perpendicular-slope [m]
+  (if (zero? m)
+    m
+    (/ -1 m)))
+
+; y − p2.y = slope * (x − p2.x)
+; 
+(defn perpendicular-point [p1 p2 distance direction]
+  (let [m (slope p1 p2)
+        perp-m (perpendicular-slope m)
+        angle (q/atan perp-m)
+        ;direction (if (zero? (rand-int 2)) -1 1)
+        new-x (+ (:x p2) (* direction distance (q/cos angle)))
+        new-y (+ (:y p2) (* direction distance (q/sin angle)))]
+    {:x new-x :y new-y}))
+
+; Idea for this function:
+; Take a list of points ({:x x, :y y}):
+; - keep the first and last points
+; - select N number of points in between the first and last
+; - For each selected point calculate the line that is perpendicular to it (compared to the line from previous selected point to this)
+;   - replace the point with a new one on the perpendicular line
+(defn ekg-replace [ps]
+  (let [p0 (first ps)
+        p-last (last ps)
+        len (count ps)
+        i1 (int (q/lerp 0 len 0.1))
+        i2 (int (q/lerp 0 len 0.4))
+        i3 (int (q/lerp 0 len 0.65))
+        i4 (int (q/lerp 0 len 0.8))]
+    ;(println ps)
+    [p0
+     (perpendicular-point (nth ps (min 0 (dec i1))) (nth ps i1) 10 1)
+     (perpendicular-point (nth ps (min 0 (dec i2))) (nth ps i2) 75 -1)
+     (perpendicular-point (nth ps (min 0 (dec i3))) (nth ps i3) 80 1)
+     (perpendicular-point (nth ps (min 0 (dec i4))) (nth ps i4) 15 -1)
+     p-last]))
+
+;
 (defn map-some [fpredicate ftrue ffalse items]
   (map (fn [element]
          (if (fpredicate element)
@@ -30,14 +80,36 @@
            (ffalse element)))
        items))
 
+
+(defn apply-some-ekg [predicate p-segments]
+  (map-some predicate ekg-replace identity p-segments))
+
+; modified version of
+; https://clojuredocs.org/clojure.core/split-with#example-5e48288ce4b0ca44402ef839
+; that splits every time the predicate is true.
+(defn split-by [pred coll]
+  (lazy-seq
+   (when-let [s (seq coll)]
+     (let [[xs ys] (split-with pred s)]
+       (if (seq xs)
+         (cons xs (split-by pred ys))
+         (let [pred (complement pred)
+               skip (take-while pred s)
+               others (drop-while pred s)
+               [xs ys] (split-with pred others)]
+           (cons (concat skip xs)
+                 (split-by pred ys))))))))
+
 (defn generate-funky-wave [startx endy]
   (->> (coord-gen startx endy)
        (map sinusoid-point)
-       (map-some #(and (> (:y %) 400) (< (:y %) 450) (even? (:y %)))
-                 perlin
-                 identity)
+       ;(map-some #(and (> (:y %) 400) (< (:y %) 450) (even? (:y %)))
+       ;          perlin
+       ;          identity)
        ;(map perlin)
-       ))
+       (split-by #(or (< (:y %) 400) (> (:y %) 430)))
+       (apply-some-ekg #(< (count %) 100))
+       flatten))
 
 (defn draw-funky-wave [wave]
   (let [segments (partition 2 1 wave)]
