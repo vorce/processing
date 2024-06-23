@@ -16,14 +16,28 @@
 
 (defn perlin [p]
   (let [x (:x p)
-        y (:y p)]
-    (assoc p :x (q/map-range (q/noise x y) 0 1 580 720))))
+        y (:y p)
+        strength 300]
+    (assoc p
+           :x (q/map-range (q/noise x y) 0 1 (- x strength) (+ x strength))
+           ;:y (q/map-range (q/noise x y) 0 1 (- y 20) (+ y 20))
+           )))
 
+(defn map-some [fpredicate ftrue ffalse items]
+  (map (fn [element]
+         (if (fpredicate element)
+           (ftrue element)
+           (ffalse element)))
+       items))
 
 (defn generate-funky-wave [startx endy]
   (->> (coord-gen startx endy)
        (map sinusoid-point)
-       (map perlin)))
+       (map-some #(and (> (:y %) 400) (< (:y %) 450) (even? (:y %)))
+                 perlin
+                 identity)
+       ;(map perlin)
+       ))
 
 (defn draw-funky-wave [wave]
   (let [segments (partition 2 1 wave)]
