@@ -14,11 +14,16 @@
     {:x xoffset,
      :y y}))
 
-(defn perlin [])
+(defn perlin [p]
+  (let [x (:x p)
+        y (:y p)]
+    (assoc p :x (q/map-range (q/noise x y) 0 1 580 720))))
+
 
 (defn generate-funky-wave [startx endy]
   (->> (coord-gen startx endy)
-       (map sinusoid-point)))
+       (map sinusoid-point)
+       (map perlin)))
 
 (defn draw-funky-wave [wave]
   (let [segments (partition 2 1 wave)]
