@@ -3,6 +3,14 @@
 Funky waves with occult fantasy frames. Test sketch for potential
 plotter experiments.
 
+## TODO
+
+* [x] Regenerate motif on right click
+* [x] Make distance for perpendicular-points in ekg-replace dynamic
+* Make ekg-replace dynamic in how many points we use (2-9?)
+* Make generate-funky-wave add many ekgs
+* Add many waves
+
 ## Usage
 
 Calva/VSCode - (cmd+p) `Start a Project REPL (aka Jack In)` -> ekg -> Leiningen

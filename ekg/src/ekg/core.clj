@@ -66,10 +66,10 @@
         i4 (int (q/lerp 0 len 0.8))]
     ;(println ps)
     [p0
-     (perpendicular-point (nth ps (min 0 (dec i1))) (nth ps i1) 10 1)
-     (perpendicular-point (nth ps (min 0 (dec i2))) (nth ps i2) 75 -1)
-     (perpendicular-point (nth ps (min 0 (dec i3))) (nth ps i3) 80 1)
-     (perpendicular-point (nth ps (min 0 (dec i4))) (nth ps i4) 15 -1)
+     (perpendicular-point (nth ps (min 0 (dec i1))) (nth ps i1) (q/random 10 50) 1)
+     (perpendicular-point (nth ps (min 0 (dec i2))) (nth ps i2) (q/random 20 75) -1)
+     (perpendicular-point (nth ps (min 0 (dec i3))) (nth ps i3) (q/random 30 80) 1)
+     (perpendicular-point (nth ps (min 0 (dec i4))) (nth ps i4) (q/random 10 50) -1)
      p-last]))
 
 ;
@@ -127,7 +127,8 @@
   ;(let [coords (map (fn [n] {:x (sinusoid n 100 0 50.0 620), :y n}) (range 1754))]
     ;(println (str coords))
   {:color 0,
-   :angle 0})
+   :angle 0,
+   :waves [(generate-funky-wave 0 1754)]})
 
 (defn update-state [state]
   ; Update sketch state by changing circle color and position.
@@ -140,9 +141,9 @@
   (q/fill (:color state) 255 255)
   (q/stroke 0 0 0)
 
-  (let [wave1 (generate-funky-wave 0 1754)]
+  (doseq [wave (:waves state)]
       ;(println (str "x: " (:x p1) ", y: " (:y p1) " -> x: " (:x p2) ", y: " (:y p2))
-    (draw-funky-wave wave1)))
+    (draw-funky-wave wave)))
 
 (defn filename []
   (let [timestamp (str (q/year) (q/month) (q/day) (q/hour) (q/minute) (q/seconds))]
@@ -153,9 +154,13 @@
     (println "Saving screenshot: " name)
     (q/save-frame (str name "-####.png"))))
 
+(defn regenerate [state]
+  (assoc state :waves [(generate-funky-wave 0 1754)]))
+
 (defn mouse-clicked [state event]
   (cond
     (= (:button event) :left) (do (save-screenshot) state)
+    (= (:button event) :right) (regenerate state)
     :else state))
 
 (q/defsketch ekg
