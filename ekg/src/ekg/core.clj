@@ -30,7 +30,7 @@
         x2 (:x p2)
         y2 (:y p2)
         xdivisor (- x2 x1)]
-    (if (= xdivisor 0)
+    (if (zero? xdivisor)
       0
       (/ (- y2 y1) xdivisor))))
 
@@ -61,6 +61,13 @@
          (map #(max 0.0 (min 1.0 %)))
          (sort))))
 
+(defn gauss-size [pos max]
+  (let [perturbation 0.5
+        normalized-pos (/ pos (dec max))
+        scale-factor (q/exp (* -0.5 (q/pow (/ (- normalized-pos 0.5) 0.5) 2)))]
+    (+ (* scale-factor (q/random-gaussian))
+       (* perturbation (q/random-gaussian)))))
+
 ; Idea for this function:
 ; Take a list of points ({:x x, :y y}):
 ; - keep the first and last points
@@ -76,8 +83,11 @@
         pps (map-indexed
              #(let [from (nth ps (max 0 (dec %2)))
                     to (nth ps (min %2 (dec len)))
-                    min-len (q/random 7 30)
-                    max-len (q/random (+ min-len 20) (+ min-len 55))]
+                    gs (q/abs (gauss-size %1 jag-count))
+                    min-len (* (q/random 7 30) gs)
+                    max-len (* (q/random (+ min-len 20) (+ min-len 55)) gs)]
+                (println "gs: " gs)
+                (println "min-len:" min-len ", max-len:" max-len)
                 (perpendicular-point from to (q/random min-len max-len) (if (even? %1) 1 -1)))
              indices)]
     (concat [p0] pps [p-last])))
@@ -119,6 +129,9 @@
        ;(map perlin)
        (split-by #(or (< (:y %) 400) (> (:y %) 430)))
        (apply-some-ekg #(< (count %) 100))
+       flatten
+       (split-by #(or (< (:y %) 600) (> (:y %) 650)))
+       (apply-some-ekg #(< (count %) 100))
        flatten))
 
 (defn draw-funky-wave [wave]
@@ -132,10 +145,6 @@
   (q/frame-rate 30)
   ; Set color mode to HSB (HSV) instead of default RGB.
   (q/color-mode :hsb)
-  ; setup function returns initial state. It contains
-  ; circle color and position.
-  ;(let [coords (map (fn [n] {:x (sinusoid n 100 0 50.0 620), :y n}) (range 1754))]
-    ;(println (str coords))
   {:color 0,
    :angle 0,
    :waves [(generate-funky-wave 0 1754)]})
@@ -176,14 +185,10 @@
 (q/defsketch ekg
   :title "ekg"
   :size [1240 1754]
-  ; setup function called only once, during sketch initialization.
   :setup setup
   ; update-state is called on each iteration before draw-state.
   :update update-state
   :draw draw-state
   :mouse-clicked mouse-clicked
   :features [:keep-on-top]
-  ; This sketch uses functional-mode middleware.
-  ; Check quil wiki for more info about middlewares and particularly
-  ; fun-mode.
   :middleware [m/fun-mode])
