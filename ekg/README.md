@@ -7,7 +7,7 @@ plotter experiments.
 
 * [x] Regenerate motif on right click
 * [x] Make distance for perpendicular-points in ekg-replace dynamic
-* Make ekg-replace dynamic in how many points we use (2-9?)
+* [x] Make ekg-replace dynamic in how many points we use (2-9?)
 * Make generate-funky-wave add many ekgs
 * Add many waves
 

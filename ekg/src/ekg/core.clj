@@ -50,6 +50,17 @@
         new-y (+ (:y p2) (* direction distance (q/sin angle)))]
     {:x new-x :y new-y}))
 
+; Generate an n length list of floats in the range 0.0 - 1.0
+; that is "aestethically pleasing" for lerp.
+; E.g: n=2 => [0.2, 0.75]
+(defn lerpies [n]
+  (let [step (/ 1.0 (inc n))
+        perturbation 0.2]
+    (->> (range 1 (inc n))
+         (map #(+ (* % step) (* perturbation (- (rand) 0.5))))
+         (map #(max 0.0 (min 1.0 %)))
+         (sort))))
+
 ; Idea for this function:
 ; Take a list of points ({:x x, :y y}):
 ; - keep the first and last points
@@ -60,17 +71,16 @@
   (let [p0 (first ps)
         p-last (last ps)
         len (count ps)
-        i1 (int (q/lerp 0 len 0.1))
-        i2 (int (q/lerp 0 len 0.4))
-        i3 (int (q/lerp 0 len 0.65))
-        i4 (int (q/lerp 0 len 0.8))]
-    ;(println ps)
-    [p0
-     (perpendicular-point (nth ps (min 0 (dec i1))) (nth ps i1) (q/random 10 50) 1)
-     (perpendicular-point (nth ps (min 0 (dec i2))) (nth ps i2) (q/random 20 75) -1)
-     (perpendicular-point (nth ps (min 0 (dec i3))) (nth ps i3) (q/random 30 80) 1)
-     (perpendicular-point (nth ps (min 0 (dec i4))) (nth ps i4) (q/random 10 50) -1)
-     p-last]))
+        jag-count (q/random 1 8)
+        indices (map #(int (q/lerp 0 len %)) (lerpies jag-count))
+        pps (map-indexed
+             #(let [from (nth ps (max 0 (dec %2)))
+                    to (nth ps (min %2 (dec len)))
+                    min-len (q/random 7 30)
+                    max-len (q/random (+ min-len 20) (+ min-len 55))]
+                (perpendicular-point from to (q/random min-len max-len) (if (even? %1) 1 -1)))
+             indices)]
+    (concat [p0] pps [p-last])))
 
 ;
 (defn map-some [fpredicate ftrue ffalse items]
