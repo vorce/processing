@@ -6,8 +6,9 @@
 (defn sinusoid [y amp yoffset freq xoffset]
   (+ (* amp (q/sin (/ (- y yoffset) freq))) xoffset))
 
-(defn sinusoid-point [p]
-  (assoc p :x (sinusoid (:y p) 100 0 50.0 620)))
+; 100 0 50.0 620
+(defn sinusoid-point [amp yoffset freq xoffset p]
+  (assoc p :x (sinusoid (:y p) amp yoffset freq xoffset)))
 
 (defn coord-gen [xoffset maxy]
   (for [y (range maxy)]
@@ -141,7 +142,8 @@
 (defn generate-funky-wave [startx endy]
   (let [max-ekgs (int (q/random 1 8))]
     (->> (coord-gen startx endy)
-         (map sinusoid-point)
+         ; sinusoid-point 100 0 50.0 620 p
+         (map #(sinusoid-point 100 0 50.0 620 %))
            ;(map-some #(and (> (:y %) 400) (< (:y %) 450) (even? (:y %)))
            ;          perlin
            ;          identity)
@@ -157,6 +159,9 @@
         (q/stroke-weight w)
         (q/line (:x p1) (:y p1) (:x p2) (:y p2))))))
 
+(defn gen-many-waves []
+  [(generate-funky-wave 0 1754)])
+
 (defn setup []
   ; Set frame rate to 30 frames per second.
   (q/frame-rate 30)
@@ -165,7 +170,7 @@
   (q/color-mode :hsb)
   {:color 0,
    :angle 0,
-   :waves [(generate-funky-wave 0 1754)]})
+   :waves (gen-many-waves)})
 
 (defn update-state [state]
   ; Update sketch state by changing circle color and position.
@@ -193,7 +198,7 @@
 
 (defn regenerate [state]
   (q/noise-seed (q/frame-count))
-  (assoc state :waves [(generate-funky-wave 0 1754)]))
+  (assoc state :waves (gen-many-waves)))
 
 (defn mouse-clicked [state event]
   (cond
