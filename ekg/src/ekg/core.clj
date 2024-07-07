@@ -120,6 +120,13 @@
            (cons (concat skip xs)
                  (split-by pred ys))))))))
 
+(defn ekg-section [ystart yend points]
+  (let [len (inc (- yend ystart))]
+    (->> points
+         (split-by #(or (< (:y %) ystart) (> (:y %) yend)))
+         (apply-some-ekg #(= (count %) len))
+         flatten)))
+
 (defn generate-funky-wave [startx endy]
   (->> (coord-gen startx endy)
        (map sinusoid-point)
@@ -127,12 +134,8 @@
        ;          perlin
        ;          identity)
        ;(map perlin)
-       (split-by #(or (< (:y %) 400) (> (:y %) 430)))
-       (apply-some-ekg #(< (count %) 100))
-       flatten
-       (split-by #(or (< (:y %) 600) (> (:y %) 650)))
-       (apply-some-ekg #(< (count %) 100))
-       flatten))
+       (ekg-section 400 430)
+       (ekg-section 600 650)))
 
 (defn draw-funky-wave [wave]
   (let [segments (partition 2 1 wave)]
