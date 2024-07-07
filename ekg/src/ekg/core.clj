@@ -178,6 +178,7 @@
     (q/save-frame (str name "-####.png"))))
 
 (defn regenerate [state]
+  (q/noise-seed (q/frame-count))
   (assoc state :waves [(generate-funky-wave 0 1754)]))
 
 (defn mouse-clicked [state event]
