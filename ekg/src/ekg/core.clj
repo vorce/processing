@@ -139,11 +139,11 @@
     points
     (recur-ekg-sections (inc i) max (rand-ekg-section points))))
 
-(defn generate-funky-wave [startx endy]
+(defn generate-funky-wave [startx endy amp yoffset freq xoffset]
   (let [max-ekgs (int (q/random 1 8))]
     (->> (coord-gen startx endy)
          ; sinusoid-point 100 0 50.0 620 p
-         (map #(sinusoid-point 100 0 50.0 620 %))
+         (map #(sinusoid-point amp yoffset freq xoffset %))
            ;(map-some #(and (> (:y %) 400) (< (:y %) 450) (even? (:y %)))
            ;          perlin
            ;          identity)
@@ -160,7 +160,9 @@
         (q/line (:x p1) (:y p1) (:x p2) (:y p2))))))
 
 (defn gen-many-waves []
-  [(generate-funky-wave 0 1754)])
+  [(generate-funky-wave 0 1754 100 0 50.0 300)
+   (generate-funky-wave 0 1754 90 0 90.0 600)
+   (generate-funky-wave 0 1754 150 0 80.0 900)])
 
 (defn setup []
   ; Set frame rate to 30 frames per second.

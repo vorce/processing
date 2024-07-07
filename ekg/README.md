@@ -9,7 +9,7 @@ plotter experiments.
 * [x] Make distance for perpendicular-points in ekg-replace dynamic
 * [x] Make ekg-replace dynamic in how many points we use (2-9?)
 * [x] Make generate-funky-wave add many ekgs
-* Add many waves
+* [x] Add many waves
 
 ## Usage
 
