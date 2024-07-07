@@ -137,12 +137,16 @@
 (defn draw-funky-wave [wave]
   (let [segments (partition 2 1 wave)]
     (doseq [[p1 p2] segments]
-       ;(println (str "x: " (:x p1) ", y: " (:y p1) " -> x: " (:x p2) ", y: " (:y p2))
-      (q/line (:x p1) (:y p1) (:x p2) (:y p2)))))
+      (let [w (q/abs (sinusoid (:y p1) 4 0 150.0 0))
+            nf (q/noise (* 0.05 (:y p1)))
+            w (* 5 nf w)]
+        (q/stroke-weight w)
+        (q/line (:x p1) (:y p1) (:x p2) (:y p2))))))
 
 (defn setup []
   ; Set frame rate to 30 frames per second.
   (q/frame-rate 30)
+  (q/noise-detail 8 0.5)
   ; Set color mode to HSB (HSV) instead of default RGB.
   (q/color-mode :hsb)
   {:color 0,
