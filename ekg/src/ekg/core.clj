@@ -127,15 +127,26 @@
          (apply-some-ekg #(= (count %) len))
          flatten)))
 
+(defn rand-ekg-section [points]
+  (let [start (int (q/random 0 (- 1754 100)))
+        end (int (+ start (q/random 30 100)))]
+    (println "start:" start ", end:" end)
+    (ekg-section start end points)))
+
+(defn recur-ekg-sections [i max points]
+  (if (= i max)
+    points
+    (recur-ekg-sections (inc i) max (rand-ekg-section points))))
+
 (defn generate-funky-wave [startx endy]
-  (->> (coord-gen startx endy)
-       (map sinusoid-point)
-       ;(map-some #(and (> (:y %) 400) (< (:y %) 450) (even? (:y %)))
-       ;          perlin
-       ;          identity)
-       ;(map perlin)
-       (ekg-section 400 430)
-       (ekg-section 600 650)))
+  (let [max-ekgs (int (q/random 1 8))]
+    (->> (coord-gen startx endy)
+         (map sinusoid-point)
+           ;(map-some #(and (> (:y %) 400) (< (:y %) 450) (even? (:y %)))
+           ;          perlin
+           ;          identity)
+           ;(map perlin)
+         (recur-ekg-sections 0 max-ekgs))))
 
 (defn draw-funky-wave [wave]
   (let [segments (partition 2 1 wave)]
